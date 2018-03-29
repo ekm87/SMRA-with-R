@@ -43,10 +43,20 @@ SMR01 <- dbGetQuery(SMRA,statement="SELECT AGE_IN_YEARS, SEX, LOCATION
                     FROM ANALYSIS.SMR01_PI 
                     WHERE AGE_IN_YEARS>100 AND SEX=1  AND rownum <= 10")
 
-#####
 
-SMR_Join <- dbGetQuery(SMRA,
-                  statement="SELECT T1.UPI_NUMBER,  T1.LOCATION, T1.SPECIALTY, 
+###Example of limiting by date
+SMR_date<-tbl_df(dbGetQuery(SMRA, statement="SELECT 
+                LPAD(LINK_NO,10,0) AS LINK_NO ,LOCATION, ADMISSION_DATE, DISCHARGE_DATE, 
+                MAIN_CONDITION, CIS_MARKER
+                FROM ANALYSIS.SMR01_PI
+                WHERE
+                ADMISSION_DATE BETWEEN {d '2010-01-01'} AND {d '2010-04-30'}
+                ORDER BY LINK_NO, ADMISSION_DATE, DISCHARGE_DATE, ADMISSION, DISCHARGE, URI" ))
+
+
+#####example of a JOIN/###
+##using Method 3: saving the query as an object first:
+query<-"SELECT T1.UPI_NUMBER,  T1.LOCATION, T1.SPECIALTY, 
                      T1.ADMISSION_TYPE, T1.ADMISSION_DATE, T1.DISCHARGE_DATE, 
                       T1.MAIN_CONDITION, T2.DATE_OF_DEATH
                       FROM 
@@ -54,5 +64,7 @@ SMR_Join <- dbGetQuery(SMRA,
                       LEFT JOIN
                       ANALYSIS.GRO_DEATHS_C T2   
                       ON T1.UPI_NUMBER = T2.UPI_NUMBER 
-                      WHERE rownum<=100")
+                      WHERE rownum<=100"
+
+SMR_Join <- dbGetQuery(SMRA, statement=query)
 
